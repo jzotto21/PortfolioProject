@@ -5,6 +5,7 @@ order by 3,4
 -- Select Data that we are going to be using
 SELECT Location, Date, total_cases, new_cases, total_deaths, population
 FROM CovidDeaths
+WHERE CONTINENT IS NOT NULL
 ORDER BY 1,2
 
 
@@ -150,3 +151,35 @@ WHERE dea.continent IS NOT NULL
 
 	SELECT *
 	FROM PercentPopulationVaccinated
+
+
+CREATE VIEW GLOBALNUMBERTOTAL AS
+SELECT SUM(new_cases) AS total_cases, 
+SUM(CAST(new_deaths AS INT)) AS total_deaths,
+SUM(CAST(new_deaths AS INT))/SUM(new_cases)*100 AS DeathPercentageGlobal
+FROM CovidDeaths
+where continent is not null
+
+CREATE VIEW DeathPopulation AS
+SELECT Location, date, total_cases, total_deaths, (total_deaths/total_cases)*100 as DeathPercentage
+FROM CovidDeaths
+WHERE location like '%states%'
+and continent is not null
+
+CREATE VIEW USAContractedPercentage AS
+SELECT Location, date, total_cases, population, (total_cases/population)*100 as PopulationPercentage
+FROM CovidDeaths
+WHERE location like '%states%'
+and continent is not null
+
+CREATE VIEW HighestInfectionRate as
+SELECT Location, MAX(total_cases) AS HighestInfectionCount, population, MAX((total_cases/population))*100 as PopulationPercentage
+FROM CovidDeaths
+GROUP BY Location, Population
+
+CREATE VIEW HighestDeathRate as
+SELECT Location, MAX(CAST(total_deaths AS INT)) as TotalDeathCount
+FROM CovidDeaths
+WHERE Continent is not null
+GROUP BY Location
+
